@@ -4,37 +4,38 @@ import math
 # --- Kelas untuk Individu (Kromosom) ---
 class Individual:
     """Merepresentasikan satu individu dalam populasi."""
-    def __init__(self, chromosome_length):
-        self.chromosome = "".join(random.choice(['0', '1']) for _ in range(chromosome_length))
+    def __init__(self, chr_length):
+        self.chromosome = "".join(random.choice(['0', '1']) for _ in range(chr_length))
         self.fitness = None # Akan dihitung nanti
         self.decoded_values = None # Akan dihitung nanti
 
-    def set_chromosome(self, chromosome_str):
+    def set_chromosome(self, chr_str):
         """Mengatur kromosom secara manual (misalnya setelah crossover/mutasi)."""
-        self.chromosome = chromosome_str
+        self.chromosome = chr_str
         self.fitness = None # Reset fitness jika kromosom berubah
         self.decoded_values = None # Reset decoded values
 
     def __str__(self):
         """Representasi string dari individu."""
         return f"Chromosome: {self.chromosome}, Fitness: {self.fitness}"
-
+    
 # --- Kelas Utama Algoritma Genetika ---
 class GeneticAlgorithm:
     """Mengelola proses Algoritma Genetika."""
 
+    #menginisialisasi parameter GA dan state GA
     def __init__(self, pop_size, bits_per_var, n_vars, bounds, generations,
-                 crossover_rate, mutation_rate, tournament_size, elitism_count):
+                 crossover_rate, mutation_rate, roulette_size, elitism_count):
         # Parameter GA
         self.pop_size = pop_size
         self.bits_per_var = bits_per_var
         self.n_vars = n_vars
-        self.chromosome_length = bits_per_var * n_vars
+        self.chr_length = bits_per_var * n_vars
         self.bounds = bounds
         self.generations = generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
-        self.tournament_size = tournament_size
+        self.roullete_size = roulette_size
         self.elitism_count = elitism_count
 
         # State GA
@@ -46,7 +47,7 @@ class GeneticAlgorithm:
     # --- Proses Inisialisasi ---
     def initialize_population(self):
         """Membuat populasi awal."""
-        self.population = [Individual(self.chromosome_length) for _ in range(self.pop_size)]
+        self.population = [Individual(self.chr_length) for _ in range(self.pop_size)]
         print(f"Populasi awal dengan {len(self.population)} individu berhasil dibuat.")
 
     # --- Proses Dekode Kromosom ---
@@ -85,14 +86,14 @@ class GeneticAlgorithm:
             term1 = math.sin(x1) * math.cos(x2)
             angle_tan = x1 + x2
             if abs(math.cos(angle_tan)) < 1e-10:
-                fitness_value = -float('inf') # Penalti untuk tan tak terhingga
+                fitness_value = -float('inf') # kondisi jika tan tak terhingga
             else:
                 term2 = math.tan(angle_tan)
                 term3 = 0.75 * math.exp(1 - abs(x1))
                 fitness_value = term1 * term2 + term3
 
             if math.isnan(fitness_value) or math.isinf(fitness_value):
-                fitness_value = -float('inf') # Penalti untuk hasil tidak valid
+                fitness_value = -float('inf') # kondisi hasil yang tidak valid
 
             individual.fitness = fitness_value
             return fitness_value
@@ -101,6 +102,7 @@ class GeneticAlgorithm:
             individual.fitness = -float('inf') # Penalti untuk error perhitungan
             return -float('inf')
 
+    # --- Proses Perhitungan fitness untuk semua individu dalam Populasi ---
     def _evaluate_population(self):
         """Menghitung fitness untuk semua individu dalam populasi."""
         current_best_fitness_in_gen = -float('inf')
@@ -115,7 +117,7 @@ class GeneticAlgorithm:
         if best_individual_in_gen and current_best_fitness_in_gen > self.best_overall_fitness:
             self.best_overall_fitness = current_best_fitness_in_gen
             # Penting: salin individu terbaik, jangan hanya referensi
-            self.best_individual = Individual(self.chromosome_length)
+            self.best_individual = Individual(self.chr_length)
             self.best_individual.set_chromosome(best_individual_in_gen.chromosome)
             self.best_individual.fitness = best_individual_in_gen.fitness
             self.best_individual.decoded_values = best_individual_in_gen.decoded_values
@@ -168,15 +170,15 @@ class GeneticAlgorithm:
         child1_chromo, child2_chromo = chromo1, chromo2 # Default
 
         if random.random() < self.crossover_rate:
-            point = random.randint(1, self.chromosome_length - 1)
+            point = random.randint(1, self.chr_length - 1)
             child1_chromo = chromo1[:point] + chromo2[point:]
             child2_chromo = chromo2[:point] + chromo1[point:]
         return child1_chromo, child2_chromo
 
     # --- Proses Mutasi ---
-    def _mutate(self, chromosome_str):
+    def _mutate(self, chr_str):
         """Melakukan mutasi bit-flip pada string kromosom."""
-        mutated_list = list(chromosome_str)
+        mutated_list = list(chr_str)
         for i in range(len(mutated_list)):
             if random.random() < self.mutation_rate:
                 mutated_list[i] = '1' if mutated_list[i] == '0' else '0'
@@ -197,7 +199,7 @@ class GeneticAlgorithm:
                                    reverse=True)
         for i in range(self.elitism_count):
             # Salin individu elit ke populasi baru
-            elite_ind = Individual(self.chromosome_length)
+            elite_ind = Individual(self.chr_length)
             elite_ind.set_chromosome(sorted_population[i].chromosome)
             elite_ind.fitness = sorted_population[i].fitness # Salin fitness juga
             elite_ind.decoded_values = sorted_population[i].decoded_values # Salin decoded juga
@@ -219,9 +221,9 @@ class GeneticAlgorithm:
             mutated_child2_chromo = self._mutate(child2_chromo)
 
             # Buat individu baru untuk anak-anak
-            child1 = Individual(self.chromosome_length)
+            child1 = Individual(self.chr_length)
             child1.set_chromosome(mutated_child1_chromo)
-            child2 = Individual(self.chromosome_length)
+            child2 = Individual(self.chr_length)
             child2.set_chromosome(mutated_child2_chromo)
 
             if offspring_count < num_offspring_needed:
@@ -238,9 +240,9 @@ class GeneticAlgorithm:
     # --- Menjalankan GA ---
     def run(self):
         """Menjalankan seluruh proses Algoritma Genetika."""
-        print("Memulai proses Algoritma Genetika")
+        print("Tugas kelompok Genetic Algorithm")
         print(f"Ukuran Populasi: {self.pop_size}, Generasi: {self.generations}")
-        print(f"Panjang Kromosom: {self.chromosome_length} ({self.bits_per_var} bits/variabel)")
+        print(f"Panjang Kromosom: {self.chr_length} ({self.bits_per_var} bits/variabel)")
         print("-" * 30)
 
         self.initialize_population()
@@ -252,8 +254,7 @@ class GeneticAlgorithm:
         # Evaluasi populasi terakhir untuk memastikan best_individual terupdate
         self._evaluate_population()
         print("-" * 30)
-        print("Proses Algoritma Genetika Selesai.")
-
+        
     # --- Mendapatkan Hasil ---
     def get_best_solution(self):
         """Mengembalikan individu terbaik yang ditemukan."""
@@ -265,7 +266,7 @@ class GeneticAlgorithm:
             min_objective_value = -self.best_individual.fitness if self.best_individual.fitness is not None else float('nan')
 
             return {
-                "chromosome": self.best_individual.chromosome,
+                "chromosome": f"[{', '.join(map(str, self.best_individual.chromosome))}]",
                 "fitness": self.best_individual.fitness,
                 "min_f_value": min_objective_value,
                 "x1": self.best_individual.decoded_values[0],
@@ -288,7 +289,7 @@ if __name__ == "__main__":
     ELITISM_COUNT = 1
 
     # Buat objek GA
-    ga = GeneticAlgorithm(
+    total_init = GeneticAlgorithm(
         pop_size=POP_SIZE,
         bits_per_var=BITS_PER_VAR,
         n_vars=N_VARIABLES,
@@ -296,15 +297,15 @@ if __name__ == "__main__":
         generations=GENERATIONS,
         crossover_rate=CROSSOVER_RATE,
         mutation_rate=MUTATION_RATE,
-        tournament_size=ROULETTE_SIZE,
+        roulette_size=ROULETTE_SIZE,
         elitism_count=ELITISM_COUNT
     )
 
     # Jalankan GA
-    ga.run()
+    total_init.run()
 
     # Dapatkan dan tampilkan solusi terbaik
-    best_solution = ga.get_best_solution()
+    best_solution = total_init.get_best_solution()
 
     if best_solution:
         print("\n--- Output Program ---")
