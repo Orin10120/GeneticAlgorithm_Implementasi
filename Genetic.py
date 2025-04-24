@@ -89,8 +89,8 @@ class GeneticAlgorithm:
                 fitness_value = -float('inf') # kondisi jika tan tak terhingga
             else:
                 term2 = math.tan(angle_tan)
-                term3 = 0.75 * math.exp(1 - abs(x1))
-                fitness_value = term1 * term2 + term3
+                term3 = 0.75 * math.exp(1 - math.sqrt(x1**2))
+                fitness_value = - (term1 * term2 + term3)
 
             if math.isnan(fitness_value) or math.isinf(fitness_value):
                 fitness_value = -float('inf') # kondisi hasil yang tidak valid
