@@ -21,7 +21,7 @@ class Individual:
     
 # --- Kelas Utama Algoritma Genetika ---
 class GeneticAlgorithm:
-    """Mengelola proses Algoritma Genetika."""
+    """Proses Tahapan Genetic Algorithm."""
 
     #menginisialisasi parameter GA dan state GA
     def __init__(self, pop_size, bits_per_var, n_vars, bounds, generations,
@@ -123,8 +123,7 @@ class GeneticAlgorithm:
             self.best_individual.decoded_values = best_individual_in_gen.decoded_values
             # Tampilkan peningkatan
             min_f_value = -self.best_overall_fitness
-            print(f"Gen {self.current_generation+1}: Fitness Terbaik Baru = {self.best_overall_fitness:.5f} (f(x1,x2) ~ {min_f_value:.5f}), x1={self.best_individual.decoded_values[0]:.5f}, x2={self.best_individual.decoded_values[1]:.5f}")
-
+            print(f"Gen {self.current_generation+1}: Fitness Terbaik Baru = {self.best_overall_fitness:.3f} (f(x1,x2) = {min_f_value:.3f}), x1={self.best_individual.decoded_values[0]:.3f}, x2={self.best_individual.decoded_values[1]:.3f}")
 
     # --- Proses Pemilihan Orang Tua ---
     def _select_parents_roulette(self):
@@ -240,7 +239,7 @@ class GeneticAlgorithm:
     # --- Menjalankan GA ---
     def run(self):
         """Menjalankan seluruh proses Algoritma Genetika."""
-        print("Tugas kelompok Genetic Algorithm")
+        print("Tugas kelompok Genetic Algorithm \n")
         print(f"Ukuran Populasi: {self.pop_size}, Generasi: {self.generations}")
         print(f"Panjang Kromosom: {self.chr_length} ({self.bits_per_var} bits/variabel)")
         print("-" * 30)
@@ -262,6 +261,7 @@ class GeneticAlgorithm:
             # Pastikan nilai dekode ada
             if self.best_individual.decoded_values is None:
                  self.best_individual.decoded_values = self._decode_chromosome(self.best_individual.chromosome)
+
             # Nilai minimum f(x1, x2) = - fitness maksimum
             min_objective_value = -self.best_individual.fitness if self.best_individual.fitness is not None else float('nan')
 
@@ -288,7 +288,7 @@ if __name__ == "__main__":
     ROULETTE_SIZE = 5
     ELITISM_COUNT = 1
 
-    # Buat objek GA
+    # Buat objek total_init
     total_init = GeneticAlgorithm(
         pop_size=POP_SIZE,
         bits_per_var=BITS_PER_VAR,
@@ -301,7 +301,7 @@ if __name__ == "__main__":
         elitism_count=ELITISM_COUNT
     )
 
-    # Jalankan GA
+    # Jalankan total_init
     total_init.run()
 
     # Dapatkan dan tampilkan solusi terbaik
@@ -309,10 +309,10 @@ if __name__ == "__main__":
 
     if best_solution:
         print("\n--- Output Program ---")
-        print(f"Kromosom terbaik ditemukan  : {best_solution['chromosome']}")
-        print(f"Nilai Fitness Maksimum      : {best_solution['fitness']:.8f}")
-        print(f"Nilai Minimum f(x1, x2)     : {best_solution['min_f_value']:.8f}")
-        print(f"Nilai x1 hasil dekode       : {best_solution['x1']:.8f}")
-        print(f"Nilai x2 hasil dekode       : {best_solution['x2']:.8f}")
+        print(f"Kromosom terbaik            : {best_solution['chromosome']}")
+        print(f"Nilai Fitness Maksimum      : {best_solution['fitness']:.3f}")
+        print(f"Nilai Minimum f(x1, x2)     : {best_solution['min_f_value']:.3f}")
+        print(f"Nilai x1 hasil dekode       : {best_solution['x1']:.3f}")
+        print(f"Nilai x2 hasil dekode       : {best_solution['x2']:.3f}")
     else:
-        print("\nTidak ditemukan solusi yang valid.")
+        print("\nBest Solution tidak ditemukan.")
