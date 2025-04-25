@@ -279,10 +279,10 @@ if __name__ == "__main__":
     BITS_PER_VAR = 10
     N_VARIABLES = 2
     BOUNDS = [(-10.0, 10.0), (-10.0, 10.0)]
-    GENERATIONS = 20
+    GENERATIONS = 100
     CROSSOVER_RATE = 0.8
-    MUTATION_RATE = 0.05
-    ROULETTE_SIZE = 5
+    MUTATION_RATE = 0.1
+    ROULETTE_SIZE = 3
     ELITISM_COUNT = 1
 
     # Buat objek total_init
