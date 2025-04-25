@@ -78,7 +78,7 @@ class GeneticAlgorithm:
                  individual.decoded_values = self._decode_chromosome(individual.chromosome)
             x1, x2 = individual.decoded_values
 
-            # Pastikan batas (redundant jika decode benar, tapi aman)
+            # Pastikan batas x1 dan x2
             x1 = max(self.bounds[0][0], min(self.bounds[0][1], x1))
             x2 = max(self.bounds[1][0], min(self.bounds[1][1], x2))
 
